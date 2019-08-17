@@ -1,5 +1,5 @@
 const ENDPOINT = `https://us1.prisma.sh/adam-zhu-016cd2/make-school-api/development`;
-const USER_ID = `cjzfuzlnncel90b55lhlw86xd`; // bootstrapped the data w/ a user (parent of all data types)
+export const USER_ID = `cjzfuzlnncel90b55lhlw86xd`; // bootstrapped the data w/ a user (parent of all data types)
 
 const gqlQuery = async ({ type, params, fields }) => {
   const query = formatQuery({ type, params, fields });
@@ -10,7 +10,7 @@ const gqlQuery = async ({ type, params, fields }) => {
   });
   const { data } = await resp.json();
 
-  if (data[type] === null) {
+  if (data === null) {
     throw new Error(`No ${type} found  matching ${params}.`);
   }
 
