@@ -1,24 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import gqlClient, { USER_ID } from "./apiClient";
+import ErrorAlerter from "./Components/ErrorAlerter";
+
+const initialState = {
+  user: undefined,
+  errors: []
+};
 
 function App() {
+  const [STATE, setState] = useState(initialState);
+  const handleError = error =>
+    setState(state => ({ ...state, errors: state.errors.concat([error]) }));
+  const loadUser = async () => {
+    const type = `user`;
+    const params = `{ id: ${USER_ID} }`;
+    const fields = `{
+      firstName
+      lastName
+      email
+    }`;
+
+    try {
+      const { user } = await gqlClient.query({ type, params, fields });
+
+      setState(state => ({ ...state, user }));
+    } catch (e) {
+      handleError(e);
+    }
+  };
+  const handlers = {
+    dismissErrors: e => setState({ errors: [] })
+  };
+
+  useEffect(() => {
+    loadUser();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+      {STATE.errors.length > 0 && (
+        <ErrorAlerter
+          errors={STATE.errors}
+          dismissHandler={handlers.dismissErrors}
+        />
+      )}
+      {STATE.user ? (
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          👋 {STATE.user.firstName} {STATE.user.lastName}
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      ) : (
+        <progress />
+      )}
     </div>
   );
 }
