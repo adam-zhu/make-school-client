@@ -2,35 +2,44 @@ import React, { useEffect, useState } from "react";
 import gqlClient, { USER_ID } from "./apiClient";
 import ErrorAlerter from "./Components/ErrorAlerter";
 import Nav from "./Components/Nav";
+import Home from "./Pages/Home";
+import Four04 from "./Pages/404";
+
+const ROUTES = {
+  HOME: {
+    name: "Home",
+    path: "/",
+    current: window.location.pathname === "/",
+    busy: false
+  },
+  COVER_LETTTERS: {
+    name: "Cover Letters",
+    path: "/cover-letters",
+    current: window.location.pathname === "/cover-letters",
+    busy: false
+  },
+  EDUCATION: {
+    name: "Education",
+    path: "/education",
+    current: window.location.pathname === "/education",
+    busy: false
+  },
+  EMPLOYMENT_HISTORY: {
+    name: "Employment History",
+    path: "/employment-history",
+    current: window.location.pathname === "/employment-history",
+    busy: false
+  },
+  RESUMES: {
+    name: "Resumes",
+    path: "/resumes",
+    current: window.location.pathname === "/resumes",
+    busy: false
+  }
+};
 
 const initialState = {
-  routes: [
-    {
-      name: "Home",
-      path: "/",
-      current: window.location.pathname === "/"
-    },
-    {
-      name: "Cover Letters",
-      path: "/cover-letters",
-      current: window.location.pathname === "/cover-letters"
-    },
-    {
-      name: "Education",
-      path: "/education",
-      current: window.location.pathname === "/education"
-    },
-    {
-      name: "Employment History",
-      path: "/employment-history",
-      current: window.location.pathname === "/employment-history"
-    },
-    {
-      name: "Resumes",
-      path: "/resumes",
-      current: window.location.pathname === "/resumes"
-    }
-  ],
+  routes: Object.values(ROUTES),
   user: undefined,
   errors: []
 };
@@ -85,15 +94,25 @@ function App() {
           dismissHandler={handlers.dismissErrors}
         />
       )}
-      {STATE.user ? (
-        <p>
-          👋 {STATE.user.firstName} {STATE.user.lastName}
-        </p>
-      ) : (
-        <progress />
-      )}
+      <Router {...STATE} />
     </div>
   );
 }
+
+const Router = state => {
+  const { routes, user } = state;
+  const { path, busy } = routes.find(r => r.current);
+
+  switch (path) {
+    case ROUTES.HOME.path:
+      return <Home user={user} busy={busy} />;
+    case ROUTES.COVER_LETTTERS.path:
+    case ROUTES.EDUCATION.path:
+    case ROUTES.EMPLOYMENT_HISTORY.path:
+    case ROUTES.RESUMES.path:
+    default:
+      return <Four04 />;
+  }
+};
 
 export default App;
