@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const Nav = ({ routes, navigateHandler }) => {
   const renderNavItem = ({ name, path, current }) => (
@@ -13,9 +13,9 @@ const Nav = ({ routes, navigateHandler }) => {
   );
 
   return (
-    <sidebar>
+    <aside>
       <nav>{routes.map(renderNavItem)}</nav>
-    </sidebar>
+    </aside>
   );
 };
 
