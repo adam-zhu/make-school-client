@@ -10,7 +10,9 @@ import {
   deleteEducation,
   createEmploymentHistory,
   updateEmploymentHistory,
-  deleteEmploymentHistory
+  deleteEmploymentHistory,
+  createResume,
+  deleteResume
 } from "./services";
 import ErrorAlerter from "./Components/ErrorAlerter";
 import Nav from "./Components/Nav";
@@ -18,6 +20,7 @@ import Home from "./Pages/Home";
 import CoverLetters from "./Pages/CoverLetters";
 import Education from "./Pages/Education";
 import EmploymentHistory from "./Pages/EmploymentHistory";
+import Resumes from "./Pages/Resumes";
 import Four04 from "./Pages/404";
 
 const ROUTES = {
@@ -86,6 +89,8 @@ function App() {
         routes: nextRouterState(path)
       }));
     },
+
+    // HOME PAGE
     userFieldChange: name => e => {
       const { value } = e.target;
 
@@ -117,6 +122,8 @@ function App() {
 
       updateUser(STATE.user)(successCallback, failureCallback);
     },
+
+    // COVER LETTERS PAGE
     coverLetterFieldChangeFactory: id => name => e => {
       const { coverLetters } = STATE.user;
       const updatedCoverLetters = coverLetters.map(c =>
@@ -235,6 +242,8 @@ function App() {
       setCoverLetterBusy(true);
       await deleteCoverLetter(id)(success, failure);
     },
+
+    // EDUCATION PAGE
     educationFieldChangeFactory: id => e => {
       const { education } = STATE.user;
       const { name } = e.target;
@@ -371,6 +380,8 @@ function App() {
       setEducationItemBusy(true);
       await deleteEducation(id)(success, failure);
     },
+
+    // EMPLOYMENT HISTORY PAGE
     employmentHistoryFieldChangeFactory: id => e => {
       const { employmentHistory } = STATE.user;
       const { name, value } = e.target;
@@ -507,6 +518,87 @@ function App() {
       e.preventDefault();
       setEmploymentHistoryItemBusy(true);
       await deleteEmploymentHistory(id)(success, failure);
+    },
+
+    // RESUME PAGE
+    resumeNameChangeFactory: id => e => {
+      const { employmentHistory } = STATE.user;
+      const { value } = e.target;
+      const updatedEmploymentHistory = employmentHistory.map(emp =>
+        emp.id === id
+          ? {
+              ...emp,
+              name: value
+            }
+          : emp
+      );
+
+      setState(state => ({
+        ...state,
+        user: {
+          ...state.user,
+          employmentHistory: updatedEmploymentHistory
+        }
+      }));
+    },
+    // our component passes us success/fail functions so it can manage local state
+    resumeCreate: createData => (success, failure) => {
+      const successCallback = created => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            resumes: state.user.resumes.concat([created])
+          }
+        }));
+
+        success();
+      };
+      const failureCallback = error => {
+        handleError(error);
+        failure(error);
+      };
+
+      console.log(createData);
+
+      createResume(createData)(successCallback, failureCallback);
+    },
+    resumeDelete: id => async e => {
+      const setResumeItemBusy = busy =>
+        setState(state => {
+          const { user } = state;
+          const { resumes } = user;
+          const updatedResumes = resumes.map(r =>
+            r.id === id ? { ...r, busy } : r
+          );
+
+          return {
+            ...state,
+            user: {
+              ...user,
+              resumes: updatedResumes
+            }
+          };
+        });
+
+      const success = deletedId => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            resumes: state.user.resumes.filter(r => r.id !== id)
+          }
+        }));
+        setResumeItemBusy(false);
+      };
+      const failure = error => {
+        setResumeItemBusy(false);
+        handleError(error);
+      };
+
+      e.preventDefault();
+      setResumeItemBusy(true);
+      await deleteResume(id)(success, failure);
     }
   };
 
@@ -584,6 +676,16 @@ const Router = ({ state, handlers }) => {
               />
             );
           case ROUTES.RESUMES.path:
+            return (
+              <Resumes
+                user={user}
+                busy={busy}
+                nameChangeHandlerFactory={handlers.resumeNameChangeFactory}
+                saveHandlerFactory={() => {}}
+                createHandler={handlers.resumeCreate}
+                deleteHandlerFactory={handlers.resumeDelete}
+              />
+            );
           default:
             return <Four04 />;
         }

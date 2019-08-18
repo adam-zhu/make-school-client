@@ -49,12 +49,25 @@ export const getUser = async (resolve, reject) => {
         name
         coverLetter {
           id
+          title
+          subtitle
+          text
         }
         education {
           id
+          schoolName
+          graduated
+          degree
+          subject
+          lastYearAttended
         }
         employmentHistory {
           id
+          employerName
+          startDate
+          endDate
+          label
+          description
         }
       }
     }`;
@@ -279,6 +292,46 @@ export const updateEmploymentHistory = employmentHistory => async (
 
 export const deleteEmploymentHistory = id => async (resolve, reject) => {
   const type = `deleteEmploymentHistoryItem`;
+  const fields = `{
+    id
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { id },
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const createResume = resume => async (resolve, reject) => {
+  const type = `createResume`;
+  const userId = USER_ID;
+  const fields = `{
+    id
+    name
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { ...resume, userId },
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const deleteResume = id => async (resolve, reject) => {
+  const type = `deleteResume`;
   const fields = `{
     id
   }`;

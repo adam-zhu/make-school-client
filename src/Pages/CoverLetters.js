@@ -21,6 +21,7 @@ const CoverLetters = ({
       {coverLetters.length > 0 ? (
         coverLetters.map(c => (
           <CoverLetter
+            key={c.id}
             {...c}
             changeHandlerFactory={changeHandlerFactory}
             saveHandlerFactory={saveHandlerFactory}

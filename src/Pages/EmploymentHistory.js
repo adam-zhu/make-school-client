@@ -21,6 +21,7 @@ const EmploymentHistory = ({
       {employmentHistory.length > 0 ? (
         employmentHistory.map(emp => (
           <EmploymentHistoryItem
+            key={emp.id}
             {...emp}
             changeHandlerFactory={changeHandlerFactory}
             saveHandlerFactory={saveHandlerFactory}

@@ -21,6 +21,7 @@ const Education = ({
       {education.length > 0 ? (
         education.map(ed => (
           <EducationItems
+            key={ed.id}
             {...ed}
             changeHandlerFactory={changeHandlerFactory}
             saveHandlerFactory={saveHandlerFactory}
