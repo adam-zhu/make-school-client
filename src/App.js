@@ -12,7 +12,8 @@ import {
   updateEmploymentHistory,
   deleteEmploymentHistory,
   createResume,
-  deleteResume
+  deleteResume,
+  updateResumeName
 } from "./services";
 import ErrorAlerter from "./Components/ErrorAlerter";
 import Nav from "./Components/Nav";
@@ -521,26 +522,6 @@ function App() {
     },
 
     // RESUME PAGE
-    resumeNameChangeFactory: id => e => {
-      const { employmentHistory } = STATE.user;
-      const { value } = e.target;
-      const updatedEmploymentHistory = employmentHistory.map(emp =>
-        emp.id === id
-          ? {
-              ...emp,
-              name: value
-            }
-          : emp
-      );
-
-      setState(state => ({
-        ...state,
-        user: {
-          ...state.user,
-          employmentHistory: updatedEmploymentHistory
-        }
-      }));
-    },
     // our component passes us success/fail functions so it can manage local state
     resumeCreate: createData => (success, failure) => {
       const successCallback = created => {
@@ -599,6 +580,57 @@ function App() {
       e.preventDefault();
       setResumeItemBusy(true);
       await deleteResume(id)(success, failure);
+    },
+    resumeNameChangeFactory: id => e => {
+      const { user } = STATE;
+      const { resumes } = user;
+      const { value } = e.target;
+      const updatedResumes = resumes.map(r =>
+        r.id === id ? { ...r, name: value } : r
+      );
+      const updatedUser = {
+        ...user,
+        resumes: updatedResumes
+      };
+
+      setState(state => ({
+        ...state,
+        user: updatedUser
+      }));
+    },
+    resumeNameSubmitFactory: id => e => {
+      const { user } = STATE;
+      const { resumes } = user;
+      const { name } = resumes.find(r => r.id === id);
+      const setResumeBusy = busy =>
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            resumes: state.user.resumes.map(r =>
+              r.id === id ? { ...r, busy } : r
+            )
+          }
+        }));
+      const success = updatedResume => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            resumes: state.user.resumes.map(r =>
+              r.id === id ? { ...r, ...updatedResume, busy: false } : r
+            )
+          }
+        }));
+      };
+      const failure = e => {
+        handleError(e);
+        setResumeBusy(false);
+      };
+
+      e.preventDefault();
+      setResumeBusy(true);
+      updateResumeName({ id, name })(success, failure);
     }
   };
 
@@ -681,7 +713,7 @@ const Router = ({ state, handlers }) => {
                 user={user}
                 busy={busy}
                 nameChangeHandlerFactory={handlers.resumeNameChangeFactory}
-                saveHandlerFactory={() => {}}
+                saveHandlerFactory={handlers.resumeNameSubmitFactory}
                 createHandler={handlers.resumeCreate}
                 deleteHandlerFactory={handlers.resumeDelete}
               />

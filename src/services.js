@@ -348,3 +348,23 @@ export const deleteResume = id => async (resolve, reject) => {
     reject(e);
   }
 };
+
+export const updateResumeName = data => async (resolve, reject) => {
+  const type = `updateResumeName`;
+  const fields = `{
+    id
+    name
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data,
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
