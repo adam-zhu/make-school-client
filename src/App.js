@@ -4,12 +4,20 @@ import {
   updateUser,
   createCoverLetter,
   updateCoverLetter,
-  deleteCoverLetter
+  deleteCoverLetter,
+  createEducation,
+  updateEducation,
+  deleteEducation,
+  createEmploymentHistory,
+  updateEmploymentHistory,
+  deleteEmploymentHistory
 } from "./services";
 import ErrorAlerter from "./Components/ErrorAlerter";
 import Nav from "./Components/Nav";
 import Home from "./Pages/Home";
 import CoverLetters from "./Pages/CoverLetters";
+import Education from "./Pages/Education";
+import EmploymentHistory from "./Pages/EmploymentHistory";
 import Four04 from "./Pages/404";
 
 const ROUTES = {
@@ -226,6 +234,279 @@ function App() {
       e.preventDefault();
       setCoverLetterBusy(true);
       await deleteCoverLetter(id)(success, failure);
+    },
+    educationFieldChangeFactory: id => e => {
+      const { education } = STATE.user;
+      const { name } = e.target;
+      const value = name === "graduated" ? e.target.checked : e.target.value;
+      const updatedEducation = education.map(edu =>
+        edu.id === id
+          ? {
+              ...edu,
+              [name]: value
+            }
+          : edu
+      );
+
+      setState(state => ({
+        ...state,
+        user: {
+          ...state.user,
+          education: updatedEducation
+        }
+      }));
+    },
+    educationSaveFactory: id => e => {
+      const {
+        schoolName,
+        graduated,
+        degree,
+        subject,
+        lastYearAttended
+      } = STATE.user.education.find(edu => edu.id === id);
+      const setEducationItemBusy = busy =>
+        setState(state => {
+          const { user } = state;
+          const { education } = user;
+          const updatedEducation = education.map(edu =>
+            edu.id === id ? { ...edu, busy } : edu
+          );
+
+          return {
+            ...state,
+            user: {
+              ...user,
+              education: updatedEducation
+            }
+          };
+        });
+      const updateSuccessCallback = updatedFields => {
+        const { user } = STATE;
+        const { education } = user;
+        const updatedEducation = education.map(edu =>
+          edu.id === id ? { ...edu, ...updatedFields } : edu
+        );
+
+        setState(state => ({
+          ...state,
+          user: {
+            ...user,
+            education: updatedEducation
+          }
+        }));
+
+        setEducationItemBusy(false);
+      };
+      const updateFailureCallback = error => {
+        setEducationItemBusy(false);
+        handleError(error);
+      };
+
+      e.preventDefault();
+      setEducationItemBusy(true);
+
+      return updateEducation({
+        id,
+        schoolName,
+        graduated,
+        degree,
+        subject,
+        lastYearAttended
+      })(updateSuccessCallback, updateFailureCallback);
+    },
+    // our component passes us success/fail functions so it can manage local state
+    educationCreate: createData => (success, failure) => {
+      const successCallback = created => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            education: state.user.education.concat([created])
+          }
+        }));
+
+        success();
+      };
+      const failureCallback = error => {
+        handleError(error);
+        failure(error);
+      };
+
+      createEducation(createData)(successCallback, failureCallback);
+    },
+    educationDelete: id => async e => {
+      const setEducationItemBusy = busy =>
+        setState(state => {
+          const { user } = state;
+          const { education } = user;
+          const updatedEducation = education.map(edu =>
+            edu.id === id ? { ...edu, busy } : edu
+          );
+
+          return {
+            ...state,
+            user: {
+              ...user,
+              education: updatedEducation
+            }
+          };
+        });
+
+      const success = deletedId => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            education: state.user.education.filter(edu => edu.id !== id)
+          }
+        }));
+        setEducationItemBusy(false);
+      };
+      const failure = error => {
+        setEducationItemBusy(false);
+        handleError(error);
+      };
+
+      e.preventDefault();
+      setEducationItemBusy(true);
+      await deleteEducation(id)(success, failure);
+    },
+    employmentHistoryFieldChangeFactory: id => e => {
+      const { employmentHistory } = STATE.user;
+      const { name, value } = e.target;
+      const updatedEmploymentHistory = employmentHistory.map(emp =>
+        emp.id === id
+          ? {
+              ...emp,
+              [name]: value
+            }
+          : emp
+      );
+
+      setState(state => ({
+        ...state,
+        user: {
+          ...state.user,
+          employmentHistory: updatedEmploymentHistory
+        }
+      }));
+    },
+    employmentHistorySaveFactory: id => e => {
+      const {
+        employerName,
+        startDate,
+        endDate,
+        label,
+        description
+      } = STATE.user.employmentHistory.find(emp => emp.id === id);
+      const setEmploymentHistoryItemBusy = busy =>
+        setState(state => {
+          const { user } = state;
+          const { employmentHistory } = user;
+          const updatedEmploymentHistory = employmentHistory.map(emp =>
+            emp.id === id ? { ...emp, busy } : emp
+          );
+
+          return {
+            ...state,
+            user: {
+              ...user,
+              employmentHistory: updatedEmploymentHistory
+            }
+          };
+        });
+      const updateSuccessCallback = updatedFields => {
+        const { user } = STATE;
+        const { employmentHistory } = user;
+        const updatedEmploymentHistory = employmentHistory.map(emp =>
+          emp.id === id ? { ...emp, ...updatedFields } : emp
+        );
+
+        setState(state => ({
+          ...state,
+          user: {
+            ...user,
+            employmentHistory: updatedEmploymentHistory
+          }
+        }));
+
+        setEmploymentHistoryItemBusy(false);
+      };
+      const updateFailureCallback = error => {
+        setEmploymentHistoryItemBusy(false);
+        handleError(error);
+      };
+
+      e.preventDefault();
+      setEmploymentHistoryItemBusy(true);
+
+      return updateEmploymentHistory({
+        id,
+        employerName,
+        startDate,
+        endDate,
+        label,
+        description
+      })(updateSuccessCallback, updateFailureCallback);
+    },
+    // our component passes us success/fail functions so it can manage local state
+    employmentHistoryCreate: createData => (success, failure) => {
+      const successCallback = created => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            employmentHistory: state.user.employmentHistory.concat([created])
+          }
+        }));
+
+        success();
+      };
+      const failureCallback = error => {
+        handleError(error);
+        failure(error);
+      };
+
+      createEmploymentHistory(createData)(successCallback, failureCallback);
+    },
+    employmentHistoryDelete: id => async e => {
+      const setEmploymentHistoryItemBusy = busy =>
+        setState(state => {
+          const { user } = state;
+          const { employmentHistory } = user;
+          const updatedEmploymentHistory = employmentHistory.map(emp =>
+            emp.id === id ? { ...emp, busy } : emp
+          );
+
+          return {
+            ...state,
+            user: {
+              ...user,
+              employmentHistory: updatedEmploymentHistory
+            }
+          };
+        });
+
+      const success = deletedId => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            employmentHistory: state.user.employmentHistory.filter(
+              emp => emp.id !== id
+            )
+          }
+        }));
+        setEmploymentHistoryItemBusy(false);
+      };
+      const failure = error => {
+        setEmploymentHistoryItemBusy(false);
+        handleError(error);
+      };
+
+      e.preventDefault();
+      setEmploymentHistoryItemBusy(true);
+      await deleteEmploymentHistory(id)(success, failure);
     }
   };
 
@@ -279,7 +560,29 @@ const Router = ({ state, handlers }) => {
               />
             );
           case ROUTES.EDUCATION.path:
+            return (
+              <Education
+                education={user.education}
+                busy={busy}
+                changeHandlerFactory={handlers.educationFieldChangeFactory}
+                saveHandlerFactory={handlers.educationSaveFactory}
+                createHandler={handlers.educationCreate}
+                deleteHandlerFactory={handlers.educationDelete}
+              />
+            );
           case ROUTES.EMPLOYMENT_HISTORY.path:
+            return (
+              <EmploymentHistory
+                employmentHistory={user.employmentHistory}
+                busy={busy}
+                changeHandlerFactory={
+                  handlers.employmentHistoryFieldChangeFactory
+                }
+                saveHandlerFactory={handlers.employmentHistorySaveFactory}
+                createHandler={handlers.employmentHistoryCreate}
+                deleteHandlerFactory={handlers.employmentHistoryDelete}
+              />
+            );
           case ROUTES.RESUMES.path:
           default:
             return <Four04 />;

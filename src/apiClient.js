@@ -21,7 +21,6 @@ const gqlQuery = async ({ type, params, fields }) => {
 
 const gqlMutation = async ({ type, data, fields }) => {
   const query = formatMutation({ type, data, fields });
-  console.log(query);
   const resp = await fetch(ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -51,7 +50,9 @@ const formatQuery = ({ type, params, fields }) => {
 
 const formatMutation = ({ type, data, fields }) => {
   const nameValuePairs = obj =>
-    Object.entries(obj).map(([key, value]) => `${key}: "${value}"`);
+    Object.entries(obj).map(
+      ([key, value]) => `${key}: ${JSON.stringify(value)}`
+    );
   const mutation = `
     mutation {
       ${type}(${nameValuePairs(data).join(", ")})

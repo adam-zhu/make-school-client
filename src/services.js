@@ -155,3 +155,143 @@ export const deleteCoverLetter = id => async (resolve, reject) => {
     reject(e);
   }
 };
+
+export const createEducation = education => async (resolve, reject) => {
+  const type = `createEducation`;
+  const userId = USER_ID;
+  const fields = `{
+    id
+    schoolName
+    graduated
+    degree
+    subject
+    lastYearAttended
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { ...education, userId },
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const updateEducation = education => async (resolve, reject) => {
+  const type = `updateEducation`;
+  const fields = `{
+    schoolName
+    graduated
+    degree
+    subject
+    lastYearAttended
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: education,
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const deleteEducation = id => async (resolve, reject) => {
+  const type = `deleteEducation`;
+  const fields = `{
+    id
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { id },
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const createEmploymentHistory = employmentHistory => async (
+  resolve,
+  reject
+) => {
+  const type = `createEmploymentHistoryItem`;
+  const userId = USER_ID;
+  const fields = `{
+    id
+    employerName
+    startDate
+    endDate
+    label
+    description
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { ...employmentHistory, userId },
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const updateEmploymentHistory = employmentHistory => async (
+  resolve,
+  reject
+) => {
+  const type = `updateEmploymentHistoryItem`;
+  const fields = `{
+    employerName
+    startDate
+    endDate
+    label
+    description
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: employmentHistory,
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const deleteEmploymentHistory = id => async (resolve, reject) => {
+  const type = `deleteEmploymentHistoryItem`;
+  const fields = `{
+    id
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { id },
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
