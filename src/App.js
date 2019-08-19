@@ -13,7 +13,13 @@ import {
   deleteEmploymentHistory,
   createResume,
   deleteResume,
-  updateResumeName
+  updateResumeName,
+  addCoverLetterToResume,
+  addEducationToResume,
+  addEmploymentHistoryItemToResume,
+  removeCoverLetterFromResume,
+  removeEducationFromResume,
+  removeEmploymentHistoryFromResume
 } from "./services";
 import ErrorAlerter from "./Components/ErrorAlerter";
 import Nav from "./Components/Nav";
@@ -75,6 +81,14 @@ function App() {
     setState(state => ({
       ...state,
       routes: state.routes.map(r => (r.current ? { ...r, busy } : r))
+    }));
+  const setItemBusy = type => id => busy =>
+    setState(state => ({
+      ...state,
+      user: {
+        ...state.user,
+        [type]: state.user[type].map(_ => (_.id === id ? { ..._, busy } : _))
+      }
     }));
 
   // all handlers
@@ -140,27 +154,13 @@ function App() {
       }));
     },
     coverLetterSaveFactory: coverLetter => e => {
-      const setCoverLetterBusy = busy =>
-        setState(state => {
-          const { user } = state;
-          const { coverLetters } = user;
-          const updatedCoverLetters = coverLetters.map(c =>
-            c.id === coverLetter.id ? { ...c, busy } : c
-          );
-
-          return {
-            ...state,
-            user: {
-              ...user,
-              coverLetters: updatedCoverLetters
-            }
-          };
-        });
       const updateSuccessCallback = updatedCoverLetterFields => {
         const { user } = STATE;
         const { coverLetters } = user;
         const updatedCoverLetters = coverLetters.map(c =>
-          c.id === coverLetter.id ? { ...c, ...updatedCoverLetterFields } : c
+          c.id === coverLetter.id
+            ? { ...c, ...updatedCoverLetterFields, busy: false }
+            : c
         );
 
         setState(state => ({
@@ -170,16 +170,14 @@ function App() {
             coverLetters: updatedCoverLetters
           }
         }));
-
-        setCoverLetterBusy(false);
       };
       const updateFailureCallback = error => {
-        setCoverLetterBusy(false);
+        setItemBusy("coverLetters")(coverLetter.id)(false);
         handleError(error);
       };
 
       e.preventDefault();
-      setCoverLetterBusy(true);
+      setItemBusy("coverLetters")(coverLetter.id)(true);
 
       return updateCoverLetter(coverLetter)(
         updateSuccessCallback,
@@ -207,23 +205,6 @@ function App() {
       createCoverLetter(createData)(successCallback, failureCallback);
     },
     coverLetterDelete: id => async e => {
-      const setCoverLetterBusy = busy =>
-        setState(state => {
-          const { user } = state;
-          const { coverLetters } = user;
-          const updatedCoverLetters = coverLetters.map(c =>
-            c.id === id ? { ...c, busy } : c
-          );
-
-          return {
-            ...state,
-            user: {
-              ...user,
-              coverLetters: updatedCoverLetters
-            }
-          };
-        });
-
       const success = deletedId => {
         setState(state => ({
           ...state,
@@ -232,15 +213,14 @@ function App() {
             coverLetters: state.user.coverLetters.filter(c => c.id !== id)
           }
         }));
-        setCoverLetterBusy(false);
       };
       const failure = error => {
-        setCoverLetterBusy(false);
+        setItemBusy("coverLetters")(id)(false);
         handleError(error);
       };
 
       e.preventDefault();
-      setCoverLetterBusy(true);
+      setItemBusy("coverLetters")(id)(true);
       await deleteCoverLetter(id)(success, failure);
     },
 
@@ -274,27 +254,11 @@ function App() {
         subject,
         lastYearAttended
       } = STATE.user.education.find(edu => edu.id === id);
-      const setEducationItemBusy = busy =>
-        setState(state => {
-          const { user } = state;
-          const { education } = user;
-          const updatedEducation = education.map(edu =>
-            edu.id === id ? { ...edu, busy } : edu
-          );
-
-          return {
-            ...state,
-            user: {
-              ...user,
-              education: updatedEducation
-            }
-          };
-        });
       const updateSuccessCallback = updatedFields => {
         const { user } = STATE;
         const { education } = user;
         const updatedEducation = education.map(edu =>
-          edu.id === id ? { ...edu, ...updatedFields } : edu
+          edu.id === id ? { ...edu, ...updatedFields, busy: false } : edu
         );
 
         setState(state => ({
@@ -304,16 +268,14 @@ function App() {
             education: updatedEducation
           }
         }));
-
-        setEducationItemBusy(false);
       };
       const updateFailureCallback = error => {
-        setEducationItemBusy(false);
+        setItemBusy("education")(id)(false);
         handleError(error);
       };
 
       e.preventDefault();
-      setEducationItemBusy(true);
+      setItemBusy("education")(id)(true);
 
       return updateEducation({
         id,
@@ -345,23 +307,6 @@ function App() {
       createEducation(createData)(successCallback, failureCallback);
     },
     educationDelete: id => async e => {
-      const setEducationItemBusy = busy =>
-        setState(state => {
-          const { user } = state;
-          const { education } = user;
-          const updatedEducation = education.map(edu =>
-            edu.id === id ? { ...edu, busy } : edu
-          );
-
-          return {
-            ...state,
-            user: {
-              ...user,
-              education: updatedEducation
-            }
-          };
-        });
-
       const success = deletedId => {
         setState(state => ({
           ...state,
@@ -370,15 +315,14 @@ function App() {
             education: state.user.education.filter(edu => edu.id !== id)
           }
         }));
-        setEducationItemBusy(false);
       };
       const failure = error => {
-        setEducationItemBusy(false);
+        setItemBusy("education")(id)(false);
         handleError(error);
       };
 
       e.preventDefault();
-      setEducationItemBusy(true);
+      setItemBusy("education")(id)(true);
       await deleteEducation(id)(success, failure);
     },
 
@@ -411,27 +355,11 @@ function App() {
         label,
         description
       } = STATE.user.employmentHistory.find(emp => emp.id === id);
-      const setEmploymentHistoryItemBusy = busy =>
-        setState(state => {
-          const { user } = state;
-          const { employmentHistory } = user;
-          const updatedEmploymentHistory = employmentHistory.map(emp =>
-            emp.id === id ? { ...emp, busy } : emp
-          );
-
-          return {
-            ...state,
-            user: {
-              ...user,
-              employmentHistory: updatedEmploymentHistory
-            }
-          };
-        });
       const updateSuccessCallback = updatedFields => {
         const { user } = STATE;
         const { employmentHistory } = user;
         const updatedEmploymentHistory = employmentHistory.map(emp =>
-          emp.id === id ? { ...emp, ...updatedFields } : emp
+          emp.id === id ? { ...emp, ...updatedFields, busy: false } : emp
         );
 
         setState(state => ({
@@ -441,16 +369,14 @@ function App() {
             employmentHistory: updatedEmploymentHistory
           }
         }));
-
-        setEmploymentHistoryItemBusy(false);
       };
       const updateFailureCallback = error => {
-        setEmploymentHistoryItemBusy(false);
+        setItemBusy("employmentHistory")(id)(false);
         handleError(error);
       };
 
       e.preventDefault();
-      setEmploymentHistoryItemBusy(true);
+      setItemBusy("employmentHistory")(id)(true);
 
       return updateEmploymentHistory({
         id,
@@ -482,23 +408,6 @@ function App() {
       createEmploymentHistory(createData)(successCallback, failureCallback);
     },
     employmentHistoryDelete: id => async e => {
-      const setEmploymentHistoryItemBusy = busy =>
-        setState(state => {
-          const { user } = state;
-          const { employmentHistory } = user;
-          const updatedEmploymentHistory = employmentHistory.map(emp =>
-            emp.id === id ? { ...emp, busy } : emp
-          );
-
-          return {
-            ...state,
-            user: {
-              ...user,
-              employmentHistory: updatedEmploymentHistory
-            }
-          };
-        });
-
       const success = deletedId => {
         setState(state => ({
           ...state,
@@ -509,15 +418,14 @@ function App() {
             )
           }
         }));
-        setEmploymentHistoryItemBusy(false);
       };
       const failure = error => {
-        setEmploymentHistoryItemBusy(false);
+        setItemBusy("employmentHistory")(id)(false);
         handleError(error);
       };
 
       e.preventDefault();
-      setEmploymentHistoryItemBusy(true);
+      setItemBusy("employmentHistory")(id)(true);
       await deleteEmploymentHistory(id)(success, failure);
     },
 
@@ -540,28 +448,9 @@ function App() {
         failure(error);
       };
 
-      console.log(createData);
-
       createResume(createData)(successCallback, failureCallback);
     },
     resumeDelete: id => async e => {
-      const setResumeItemBusy = busy =>
-        setState(state => {
-          const { user } = state;
-          const { resumes } = user;
-          const updatedResumes = resumes.map(r =>
-            r.id === id ? { ...r, busy } : r
-          );
-
-          return {
-            ...state,
-            user: {
-              ...user,
-              resumes: updatedResumes
-            }
-          };
-        });
-
       const success = deletedId => {
         setState(state => ({
           ...state,
@@ -570,15 +459,14 @@ function App() {
             resumes: state.user.resumes.filter(r => r.id !== id)
           }
         }));
-        setResumeItemBusy(false);
       };
       const failure = error => {
-        setResumeItemBusy(false);
+        setItemBusy("resumes")(id)(false);
         handleError(error);
       };
 
       e.preventDefault();
-      setResumeItemBusy(true);
+      setItemBusy("resumes")(id)(true);
       await deleteResume(id)(success, failure);
     },
     resumeNameChangeFactory: id => e => {
@@ -602,16 +490,6 @@ function App() {
       const { user } = STATE;
       const { resumes } = user;
       const { name } = resumes.find(r => r.id === id);
-      const setResumeBusy = busy =>
-        setState(state => ({
-          ...state,
-          user: {
-            ...state.user,
-            resumes: state.user.resumes.map(r =>
-              r.id === id ? { ...r, busy } : r
-            )
-          }
-        }));
       const success = updatedResume => {
         setState(state => ({
           ...state,
@@ -625,12 +503,103 @@ function App() {
       };
       const failure = e => {
         handleError(e);
-        setResumeBusy(false);
+        setItemBusy("resumes")(id)(false);
       };
 
       e.preventDefault();
-      setResumeBusy(true);
+      setItemBusy("resumes")(id)(true);
       updateResumeName({ id, name })(success, failure);
+    },
+    resumeEditModeToggleFactory: id => e => {
+      e.preventDefault();
+
+      setState(state => ({
+        ...state,
+        user: {
+          ...state.user,
+          resumes: state.user.resumes.map(r =>
+            r.id === id ? { ...r, editing: !r.editing } : r
+          )
+        }
+      }));
+    },
+    addCoverLetterToResumeFactory: resumeId => coverLetterId => e => {
+      const success = updatedResume => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            resumes: state.user.resumes.map(r =>
+              r.id === resumeId ? { ...r, ...updatedResume, busy: false } : r
+            )
+          }
+        }));
+      };
+      const failure = error => {
+        setItemBusy("resumes")(resumeId)(false);
+        handleError(error);
+      };
+
+      addCoverLetterToResume(resumeId)(coverLetterId)(success, failure);
+    },
+    addEducationToResumeFactory: resumeId => educationId => e => {
+      const success = updatedResume => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            resumes: state.user.resumes.map(r =>
+              r.id === resumeId ? { ...r, ...updatedResume, busy: false } : r
+            )
+          }
+        }));
+      };
+      const failure = error => {
+        setItemBusy("resumes")(resumeId)(false);
+        handleError(error);
+      };
+
+      addEducationToResume(resumeId)(educationId)(success, failure);
+    },
+    removeCoverLetter: resumeId => e => {
+      const success = updatedResume => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            resumes: state.user.resumes.map(r =>
+              r.id === resumeId ? { ...r, ...updatedResume, busy: false } : r
+            )
+          }
+        }));
+      };
+      const failure = error => {
+        setItemBusy("resumes")(resumeId)(false);
+        handleError(error);
+      };
+
+      setItemBusy("resumes")(resumeId)(true);
+      removeCoverLetterFromResume(resumeId)(success, failure);
+    },
+    removeEducationFactory: resumeId => educationId => e => {
+      const success = updatedResume => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            resumes: state.user.resumes.map(r =>
+              r.id === resumeId ? { ...r, ...updatedResume, busy: false } : r
+            )
+          }
+        }));
+      };
+      const failure = error => {
+        setItemBusy("resumes")(resumeId)(false);
+        handleError(error);
+      };
+
+      setItemBusy("resumes")(resumeId)(true);
+      removeEducationFromResume(resumeId)(educationId)(success, failure);
     }
   };
 
@@ -716,6 +685,15 @@ const Router = ({ state, handlers }) => {
                 saveHandlerFactory={handlers.resumeNameSubmitFactory}
                 createHandler={handlers.resumeCreate}
                 deleteHandlerFactory={handlers.resumeDelete}
+                editModeToggleFactory={handlers.resumeEditModeToggleFactory}
+                addCoverLetterToResumeFactory={
+                  handlers.addCoverLetterToResumeFactory
+                }
+                addEducationToResumeFactory={
+                  handlers.addEducationToResumeFactory
+                }
+                removeCoverLetterHandler={handlers.removeCoverLetter}
+                removeEducationFactory={handlers.removeEducationFactory}
               />
             );
           default:

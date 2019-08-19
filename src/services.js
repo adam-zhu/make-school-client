@@ -47,6 +47,13 @@ export const getUser = async (resolve, reject) => {
       resumes {
         id
         name
+        user {
+          firstName
+          lastName
+          email
+          phone
+          location
+        }
         coverLetter {
           id
           title
@@ -360,6 +367,231 @@ export const updateResumeName = data => async (resolve, reject) => {
     const respData = await gqlClient.mutation({
       type,
       data,
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const addCoverLetterToResume = resumeId => coverLetterId => async (
+  resolve,
+  reject
+) => {
+  const type = `addCoverLetterToResume`;
+  const fields = `{
+    id
+    name
+    coverLetter {
+      id
+      title
+      subtitle
+      text
+    }
+    education {
+      id
+      schoolName
+      graduated
+      degree
+      subject
+      lastYearAttended
+    }
+    employmentHistory {
+      id
+      employerName
+      startDate
+      endDate
+      label
+      description
+    }
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { resumeId, coverLetterId },
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const addEducationToResume = resumeId => educationId => async (
+  resolve,
+  reject
+) => {
+  const type = `addEducationToResume`;
+  const fields = `{
+    id
+    name
+    coverLetter {
+      id
+      title
+      subtitle
+      text
+    }
+    education {
+      id
+      schoolName
+      graduated
+      degree
+      subject
+      lastYearAttended
+    }
+    employmentHistory {
+      id
+      employerName
+      startDate
+      endDate
+      label
+      description
+    }
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { resumeId, educationId },
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const addEmploymentHistoryItemToResume = resumeId => employmentHistoryItemId => async (
+  resolve,
+  reject
+) => {
+  const type = `addEmploymentHistoryItemToResume`;
+  const fields = `{
+    id
+    name
+    coverLetter {
+      id
+      title
+      subtitle
+      text
+    }
+    education {
+      id
+      schoolName
+      graduated
+      degree
+      subject
+      lastYearAttended
+    }
+    employmentHistory {
+      id
+      employerName
+      startDate
+      endDate
+      label
+      description
+    }
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { resumeId, employmentHistoryItemId },
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const removeCoverLetterFromResume = resumeId => async (
+  resolve,
+  reject
+) => {
+  const type = `removeCoverLetterFromResume`;
+  const fields = `{
+    id
+    name
+    coverLetter {
+      id
+      title
+      subtitle
+      text
+    }
+    education {
+      id
+      schoolName
+      graduated
+      degree
+      subject
+      lastYearAttended
+    }
+    employmentHistory {
+      id
+      employerName
+      startDate
+      endDate
+      label
+      description
+    }
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { resumeId },
+      fields
+    });
+
+    resolve(respData[type]);
+  } catch (e) {
+    reject(e);
+  }
+};
+
+export const removeEducationFromResume = resumeId => educationId => async (
+  resolve,
+  reject
+) => {
+  const type = `removeEducationFromResume`;
+  const fields = `{
+    id
+    name
+    coverLetter {
+      id
+      title
+      subtitle
+      text
+    }
+    education {
+      id
+      schoolName
+      graduated
+      degree
+      subject
+      lastYearAttended
+    }
+    employmentHistory {
+      id
+      employerName
+      startDate
+      endDate
+      label
+      description
+    }
+  }`;
+
+  try {
+    const respData = await gqlClient.mutation({
+      type,
+      data: { resumeId, educationId },
       fields
     });
 
