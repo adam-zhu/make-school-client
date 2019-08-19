@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
+import { shadows, formStyles } from "../styles";
 import CoverLetter from "../Components/CoverLetter";
 import Education from "../Components/Education";
+import EmploymentHistory from "../Components/EmploymentHistory";
 
 const Resumes = ({
   user,
@@ -14,8 +16,10 @@ const Resumes = ({
   editModeToggleFactory,
   addCoverLetterToResumeFactory,
   addEducationToResumeFactory,
+  addEmploymentHistoryToResumeFactory,
   removeCoverLetterHandler,
-  removeEducationFactory
+  removeEducationFactory,
+  removeEmploymentHistoryFactory
 }) => {
   if (busy) {
     return <progress />;
@@ -26,24 +30,35 @@ const Resumes = ({
   return (
     <div>
       <h2>Create New Resume</h2>
+      <br />
       <Create saveHandlerFactory={createHandler} />
+      <br />
       <hr />
+      <br />
       <h2>Resumes</h2>
+      <br />
       {resumes.length > 0 ? (
         resumes.map(r => (
-          <Resume
-            key={r.id}
-            resume={r}
-            user={user}
-            nameChangeHandlerFactory={nameChangeHandlerFactory}
-            saveHandlerFactory={saveHandlerFactory}
-            deleteHandlerFactory={deleteHandlerFactory}
-            editModeToggleFactory={editModeToggleFactory}
-            addCoverLetterToResumeFactory={addCoverLetterToResumeFactory}
-            addEducationToResumeFactory={addEducationToResumeFactory}
-            removeCoverLetterHandler={removeCoverLetterHandler}
-            removeEducationFactory={removeEducationFactory}
-          />
+          <>
+            <Resume
+              key={r.id}
+              resume={r}
+              user={user}
+              nameChangeHandlerFactory={nameChangeHandlerFactory}
+              saveHandlerFactory={saveHandlerFactory}
+              deleteHandlerFactory={deleteHandlerFactory}
+              editModeToggleFactory={editModeToggleFactory}
+              addCoverLetterToResumeFactory={addCoverLetterToResumeFactory}
+              addEducationToResumeFactory={addEducationToResumeFactory}
+              addEmploymentHistoryToResumeFactory={
+                addEmploymentHistoryToResumeFactory
+              }
+              removeCoverLetterHandler={removeCoverLetterHandler}
+              removeEducationFactory={removeEducationFactory}
+              removeEmploymentHistoryFactory={removeEmploymentHistoryFactory}
+            />
+            <br />
+          </>
         ))
       ) : (
         <p>none</p>
@@ -78,7 +93,13 @@ const Create = ({ saveHandlerFactory }) => {
   };
 
   return (
-    <form onSubmit={submitHandler} disabled={state.busy}>
+    <form
+      onSubmit={submitHandler}
+      disabled={state.busy}
+      css={css`
+        ${formStyles}
+      `}
+    >
       <div>
         <label>Name</label>
         <input
@@ -105,8 +126,10 @@ const Resume = ({
   editModeToggleFactory,
   addCoverLetterToResumeFactory,
   addEducationToResumeFactory,
+  addEmploymentHistoryToResumeFactory,
   removeCoverLetterHandler,
-  removeEducationFactory
+  removeEducationFactory,
+  removeEmploymentHistoryFactory
 }) => {
   // const { id, name, coverLetter, education, employmentHistory, busy } = resume;
   const nameChangeHandler = nameChangeHandlerFactory(resume.id);
@@ -118,12 +141,22 @@ const Resume = ({
       editModeToggle={editModeToggleFactory(resume.id)}
       addCoverLetterFactory={addCoverLetterToResumeFactory(resume.id)}
       addEducationFactory={addEducationToResumeFactory(resume.id)}
+      addEmploymentHistoryFactory={addEmploymentHistoryToResumeFactory(
+        resume.id
+      )}
       removeCoverLetterHandler={removeCoverLetterHandler}
       removeEducationHandler={removeEducationFactory(resume.id)}
+      removeEmploymentHistoryHandler={removeEmploymentHistoryFactory(resume.id)}
     />
   ) : (
     <article>
-      <form onSubmit={saveHandlerFactory(resume.id)} disabled={resume.busy}>
+      <form
+        onSubmit={saveHandlerFactory(resume.id)}
+        disabled={resume.busy}
+        css={css`
+          ${formStyles}
+        `}
+      >
         <div>
           <label>Name</label>
           <input
@@ -136,14 +169,18 @@ const Resume = ({
         <button type="submit" disabled={resume.busy}>
           Save
         </button>
-      </form>
-      <form onSubmit={editModeToggleFactory(resume.id)} disabled={resume.busy}>
-        <button type="submit" disabled={resume.busy}>
+        <button
+          type="button"
+          onClick={editModeToggleFactory(resume.id)}
+          disabled={resume.busy}
+        >
           Edit
         </button>
-      </form>
-      <form onSubmit={deleteHandlerFactory(resume.id)} disabled={resume.busy}>
-        <button type="submit" disabled={resume.busy}>
+        <button
+          type="button"
+          onClick={deleteHandlerFactory(resume.id)}
+          disabled={resume.busy}
+        >
           Delete
         </button>
       </form>
@@ -156,18 +193,19 @@ const ResumeEdit = ({
   user,
   addCoverLetterFactory,
   addEducationFactory,
+  addEmploymentHistoryFactory,
   removeCoverLetterHandler,
-  removeEducationHandler
+  removeEducationHandler,
+  removeEmploymentHistoryHandler
 }) => {
   const { coverLetters, education, employmentHistory } = user;
+  const styles = css`
+    display: flex;
+    justify-content: space-between;
+  `;
 
   return (
-    <div
-      css={css`
-        display: flex;
-        justify-content: space-between;
-      `}
-    >
+    <div css={styles}>
       <div>
         <CoverLetterChoices
           coverLetters={coverLetters}
@@ -179,11 +217,17 @@ const ResumeEdit = ({
           addEducationFactory={addEducationFactory}
           busy={resume.busy}
         />
+        <EmploymentHistoryChoices
+          employmentHistory={employmentHistory}
+          addEmploymentHistoryFactory={addEmploymentHistoryFactory}
+          busy={resume.busy}
+        />
       </div>
       <ResumeContent
         resume={resume}
         removeCoverLetterHandler={removeCoverLetterHandler}
         removeEducationHandler={removeEducationHandler}
+        removeEmploymentHistoryHandler={removeEmploymentHistoryHandler}
       />
     </div>
   );
@@ -213,11 +257,30 @@ const EducationChoices = ({ education, addEducationFactory, busy }) => {
   );
 };
 
+const EmploymentHistoryChoices = ({
+  employmentHistory,
+  addEmploymentHistoryFactory,
+  busy
+}) => {
+  return busy ? (
+    <progress />
+  ) : (
+    employmentHistory.map(emp => (
+      <div
+        onClick={busy ? null : addEmploymentHistoryFactory(emp.id)}
+        key={emp.id}
+      >
+        <EmploymentHistory {...emp} />
+      </div>
+    ))
+  );
+};
+
 const ResumeContent = ({
   resume,
   removeCoverLetterHandler,
   removeEducationHandler,
-  removeEmploymentHistoryFactory
+  removeEmploymentHistoryHandler
 }) => {
   const { id, user, name, coverLetter, education, employmentHistory } = resume;
 
@@ -241,6 +304,19 @@ const ResumeContent = ({
         ))
       ) : (
         <p>No education</p>
+      )}
+      {employmentHistory.length > 0 ? (
+        employmentHistory.map(emp => (
+          <div
+            onClick={
+              resume.busy ? null : removeEmploymentHistoryHandler(emp.id)
+            }
+          >
+            <EmploymentHistory {...emp} />
+          </div>
+        ))
+      ) : (
+        <p>No employment history</p>
       )}
     </div>
   );

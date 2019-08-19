@@ -1,14 +1,19 @@
 import React from "react";
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+import { formStyles } from "../styles";
 
 const Home = ({ user, fieldChangeHandler, saveHandler, busy }) => {
-  if (busy) {
-    return <progress />;
-  }
-
   const { firstName, lastName, email, phone, location } = user;
 
   return (
-    <form onSubmit={saveHandler}>
+    <form
+      onSubmit={saveHandler}
+      disabled={busy}
+      css={css`
+        ${formStyles}
+      `}
+    >
       <div>
         <label>First Name</label>
         <input
@@ -16,6 +21,7 @@ const Home = ({ user, fieldChangeHandler, saveHandler, busy }) => {
           name="firstName"
           value={firstName}
           onChange={fieldChangeHandler("firstName")}
+          disabled={busy}
         />
       </div>
       <div>
@@ -25,6 +31,7 @@ const Home = ({ user, fieldChangeHandler, saveHandler, busy }) => {
           name="lastName"
           value={lastName}
           onChange={fieldChangeHandler("lastName")}
+          disabled={busy}
         />
       </div>
       <div>
@@ -34,6 +41,7 @@ const Home = ({ user, fieldChangeHandler, saveHandler, busy }) => {
           name="email"
           value={email}
           onChange={fieldChangeHandler("email")}
+          disabled={busy}
         />
       </div>
       <div>
@@ -43,6 +51,7 @@ const Home = ({ user, fieldChangeHandler, saveHandler, busy }) => {
           name="phone"
           value={phone}
           onChange={fieldChangeHandler("phone")}
+          disabled={busy}
         />
       </div>
       <div>
@@ -52,9 +61,13 @@ const Home = ({ user, fieldChangeHandler, saveHandler, busy }) => {
           name="location"
           value={location}
           onChange={fieldChangeHandler("location")}
+          disabled={busy}
         />
       </div>
-      <button type="submit">Save</button>
+      <br />
+      <button type="submit" disabled={busy}>
+        Save
+      </button>
     </form>
   );
 };

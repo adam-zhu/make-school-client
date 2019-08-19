@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+import { shadows } from "./styles";
 import {
   getUser,
   updateUser,
@@ -19,10 +22,11 @@ import {
   addEmploymentHistoryItemToResume,
   removeCoverLetterFromResume,
   removeEducationFromResume,
-  removeEmploymentHistoryFromResume
+  removeEmploymentHistoryItemFromResume
 } from "./services";
 import ErrorAlerter from "./Components/ErrorAlerter";
 import Nav from "./Components/Nav";
+import MobileNav from "./Components/MobileNav";
 import Home from "./Pages/Home";
 import CoverLetters from "./Pages/CoverLetters";
 import Education from "./Pages/Education";
@@ -561,6 +565,28 @@ function App() {
 
       addEducationToResume(resumeId)(educationId)(success, failure);
     },
+    addEmploymentHistoryToResumeFactory: resumeId => employmentHistoryItemId => e => {
+      const success = updatedResume => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            resumes: state.user.resumes.map(r =>
+              r.id === resumeId ? { ...r, ...updatedResume, busy: false } : r
+            )
+          }
+        }));
+      };
+      const failure = error => {
+        setItemBusy("resumes")(resumeId)(false);
+        handleError(error);
+      };
+
+      addEmploymentHistoryItemToResume(resumeId)(employmentHistoryItemId)(
+        success,
+        failure
+      );
+    },
     removeCoverLetter: resumeId => e => {
       const success = updatedResume => {
         setState(state => ({
@@ -600,6 +626,29 @@ function App() {
 
       setItemBusy("resumes")(resumeId)(true);
       removeEducationFromResume(resumeId)(educationId)(success, failure);
+    },
+    removeEmploymentHistoryFactory: resumeId => employmentHistoryId => e => {
+      const success = updatedResume => {
+        setState(state => ({
+          ...state,
+          user: {
+            ...state.user,
+            resumes: state.user.resumes.map(r =>
+              r.id === resumeId ? { ...r, ...updatedResume, busy: false } : r
+            )
+          }
+        }));
+      };
+      const failure = error => {
+        setItemBusy("resumes")(resumeId)(false);
+        handleError(error);
+      };
+
+      setItemBusy("resumes")(resumeId)(true);
+      removeEmploymentHistoryItemFromResume(resumeId)(employmentHistoryId)(
+        success,
+        failure
+      );
     }
   };
 
@@ -608,16 +657,85 @@ function App() {
     getUser(user => setState(state => ({ ...state, user })), handleError);
   }, []);
 
+  const appStyles = `
+    font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    position: relative;
+
+    h1,h2,h3,h4,h5,h6 {
+      font-weight: 500;
+    }
+  `;
+  const navStyles = `
+    box-shadow: ${shadows.dp2};
+  `;
+  const mobileNavStyles = `
+    display: none;
+  `;
+  const mainStyles = `
+    padding: 2rem 4rem;
+  `;
+  const errorAlerterStyles = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.666);
+
+    .inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      padding: 2rem;
+      background: white;
+    }
+  `;
+
   return STATE.user ? (
-    <div className="App">
-      <Nav routes={STATE.routes} navigateHandler={handlers.navigate} />
+    <div
+      className="App"
+      css={css`
+        ${appStyles}
+      `}
+    >
+      <aside
+        css={css`
+          ${navStyles}
+        `}
+      >
+        <Nav routes={STATE.routes} navigateHandler={handlers.navigate} />
+      </aside>
+      <header
+        css={css`
+          ${mobileNavStyles}
+        `}
+      >
+        <MobileNav routes={STATE.routes} navigateHandler={handlers.navigate} />
+      </header>
       {STATE.errors.length > 0 && (
-        <ErrorAlerter
-          errors={STATE.errors}
-          dismissHandler={handlers.dismissErrors}
-        />
+        <div
+          css={css`
+            ${errorAlerterStyles}
+          `}
+        >
+          <div className="inner">
+            <ErrorAlerter
+              errors={STATE.errors}
+              dismissHandler={handlers.dismissErrors}
+            />
+          </div>
+        </div>
       )}
-      <Router state={STATE} handlers={handlers} />
+      <main
+        css={css`
+          ${mainStyles}
+        `}
+      >
+        <Router state={STATE} handlers={handlers} />
+      </main>
     </div>
   ) : (
     <progress />
@@ -628,80 +746,74 @@ const Router = ({ state, handlers }) => {
   const { routes, user } = state;
   const { path, busy } = routes.find(r => r.current);
 
-  return (
-    <main>
-      {(() => {
-        switch (path) {
-          case ROUTES.HOME.path:
-            return (
-              <Home
-                user={user}
-                busy={busy}
-                fieldChangeHandler={handlers.userFieldChange}
-                saveHandler={handlers.userSave}
-              />
-            );
-          case ROUTES.COVER_LETTTERS.path:
-            return (
-              <CoverLetters
-                coverLetters={user.coverLetters}
-                busy={busy}
-                changeHandlerFactory={handlers.coverLetterFieldChangeFactory}
-                saveHandlerFactory={handlers.coverLetterSaveFactory}
-                createHandler={handlers.coverLetterCreate}
-                deleteHandlerFactory={handlers.coverLetterDelete}
-              />
-            );
-          case ROUTES.EDUCATION.path:
-            return (
-              <Education
-                education={user.education}
-                busy={busy}
-                changeHandlerFactory={handlers.educationFieldChangeFactory}
-                saveHandlerFactory={handlers.educationSaveFactory}
-                createHandler={handlers.educationCreate}
-                deleteHandlerFactory={handlers.educationDelete}
-              />
-            );
-          case ROUTES.EMPLOYMENT_HISTORY.path:
-            return (
-              <EmploymentHistory
-                employmentHistory={user.employmentHistory}
-                busy={busy}
-                changeHandlerFactory={
-                  handlers.employmentHistoryFieldChangeFactory
-                }
-                saveHandlerFactory={handlers.employmentHistorySaveFactory}
-                createHandler={handlers.employmentHistoryCreate}
-                deleteHandlerFactory={handlers.employmentHistoryDelete}
-              />
-            );
-          case ROUTES.RESUMES.path:
-            return (
-              <Resumes
-                user={user}
-                busy={busy}
-                nameChangeHandlerFactory={handlers.resumeNameChangeFactory}
-                saveHandlerFactory={handlers.resumeNameSubmitFactory}
-                createHandler={handlers.resumeCreate}
-                deleteHandlerFactory={handlers.resumeDelete}
-                editModeToggleFactory={handlers.resumeEditModeToggleFactory}
-                addCoverLetterToResumeFactory={
-                  handlers.addCoverLetterToResumeFactory
-                }
-                addEducationToResumeFactory={
-                  handlers.addEducationToResumeFactory
-                }
-                removeCoverLetterHandler={handlers.removeCoverLetter}
-                removeEducationFactory={handlers.removeEducationFactory}
-              />
-            );
-          default:
-            return <Four04 />;
-        }
-      })()}
-    </main>
-  );
+  switch (path) {
+    case ROUTES.HOME.path:
+      return (
+        <Home
+          user={user}
+          busy={busy}
+          fieldChangeHandler={handlers.userFieldChange}
+          saveHandler={handlers.userSave}
+        />
+      );
+    case ROUTES.COVER_LETTTERS.path:
+      return (
+        <CoverLetters
+          coverLetters={user.coverLetters}
+          busy={busy}
+          changeHandlerFactory={handlers.coverLetterFieldChangeFactory}
+          saveHandlerFactory={handlers.coverLetterSaveFactory}
+          createHandler={handlers.coverLetterCreate}
+          deleteHandlerFactory={handlers.coverLetterDelete}
+        />
+      );
+    case ROUTES.EDUCATION.path:
+      return (
+        <Education
+          education={user.education}
+          busy={busy}
+          changeHandlerFactory={handlers.educationFieldChangeFactory}
+          saveHandlerFactory={handlers.educationSaveFactory}
+          createHandler={handlers.educationCreate}
+          deleteHandlerFactory={handlers.educationDelete}
+        />
+      );
+    case ROUTES.EMPLOYMENT_HISTORY.path:
+      return (
+        <EmploymentHistory
+          employmentHistory={user.employmentHistory}
+          busy={busy}
+          changeHandlerFactory={handlers.employmentHistoryFieldChangeFactory}
+          saveHandlerFactory={handlers.employmentHistorySaveFactory}
+          createHandler={handlers.employmentHistoryCreate}
+          deleteHandlerFactory={handlers.employmentHistoryDelete}
+        />
+      );
+    case ROUTES.RESUMES.path:
+      return (
+        <Resumes
+          user={user}
+          busy={busy}
+          nameChangeHandlerFactory={handlers.resumeNameChangeFactory}
+          saveHandlerFactory={handlers.resumeNameSubmitFactory}
+          createHandler={handlers.resumeCreate}
+          deleteHandlerFactory={handlers.resumeDelete}
+          editModeToggleFactory={handlers.resumeEditModeToggleFactory}
+          addCoverLetterToResumeFactory={handlers.addCoverLetterToResumeFactory}
+          addEducationToResumeFactory={handlers.addEducationToResumeFactory}
+          addEmploymentHistoryToResumeFactory={
+            handlers.addEmploymentHistoryToResumeFactory
+          }
+          removeCoverLetterHandler={handlers.removeCoverLetter}
+          removeEducationFactory={handlers.removeEducationFactory}
+          removeEmploymentHistoryFactory={
+            handlers.removeEmploymentHistoryFactory
+          }
+        />
+      );
+    default:
+      return <Four04 />;
+  }
 };
 
 export default App;

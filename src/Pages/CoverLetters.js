@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+import { shadows, formStyles } from "../styles";
 
 const CoverLetters = ({
   coverLetters,
@@ -15,22 +18,31 @@ const CoverLetters = ({
   return (
     <div>
       <h2>Create New Cover Letter</h2>
+      <br />
       <Create saveHandlerFactory={createHandler} />
+      <br />
       <hr />
+      <br />
       <h2>Cover Letters</h2>
-      {coverLetters.length > 0 ? (
-        coverLetters.map(c => (
-          <CoverLetter
-            key={c.id}
-            {...c}
-            changeHandlerFactory={changeHandlerFactory}
-            saveHandlerFactory={saveHandlerFactory}
-            deleteHandlerFactory={deleteHandlerFactory}
-          />
-        ))
-      ) : (
-        <p>none</p>
-      )}
+      <br />
+      <div>
+        {coverLetters.length > 0 ? (
+          coverLetters.map(c => (
+            <>
+              <CoverLetter
+                key={c.id}
+                {...c}
+                changeHandlerFactory={changeHandlerFactory}
+                saveHandlerFactory={saveHandlerFactory}
+                deleteHandlerFactory={deleteHandlerFactory}
+              />
+              <br />
+            </>
+          ))
+        ) : (
+          <p>none</p>
+        )}
+      </div>
     </div>
   );
 };
@@ -77,7 +89,13 @@ const Create = ({ saveHandlerFactory }) => {
   };
 
   return (
-    <form onSubmit={handlers.save} disabled={busy}>
+    <form
+      onSubmit={handlers.save}
+      disabled={busy}
+      css={css`
+        ${formStyles}
+      `}
+    >
       <div>
         <label>Title</label>
         <input
@@ -108,6 +126,7 @@ const Create = ({ saveHandlerFactory }) => {
           disabled={busy}
         />
       </div>
+      <br />
       <button type="submit" disabled={busy}>
         Save
       </button>
@@ -125,11 +144,23 @@ const CoverLetter = ({
   saveHandlerFactory,
   deleteHandlerFactory
 }) => {
+  const articleStyles = `
+    padding: 1rem;
+    box-shadow: ${shadows.dp1};
+  `;
+
   return (
-    <article>
+    <article
+      css={css`
+        ${articleStyles}
+      `}
+    >
       <form
         onSubmit={saveHandlerFactory({ id, title, subtitle, text })}
         disabled={busy}
+        css={css`
+          ${formStyles}
+        `}
       >
         <div>
           <label>Title</label>
@@ -164,9 +195,14 @@ const CoverLetter = ({
         <button type="submit" disabled={busy}>
           Save
         </button>
-      </form>
-      <form onSubmit={deleteHandlerFactory(id)} disabled={busy}>
-        <button type="submit" disabled={busy}>
+        <button
+          type="submit"
+          disabled={busy}
+          onClick={deleteHandlerFactory(id)}
+          css={css`
+            float: right;
+          `}
+        >
           Delete
         </button>
       </form>

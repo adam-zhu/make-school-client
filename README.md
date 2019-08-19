@@ -21,15 +21,66 @@ type Query {
 }
 
 type Mutation {
-  createUser(firstName: String!, lastName: String!, email: String!, phone: String, location: String!): User
-  createCoverLetter(userId: ID!, title: String, subtitle: String text: String!): CoverLetter
-  createEducation(userId: ID!, schoolName: String!, graduated: Boolean!, degree: String, Subject: String!, lastYearAttended: String!): Education
-  createEmploymentHistoryItem(userId: ID!, employerName: String!, startDate: String!, endDate: String, label: String!, description: String): EmploymentHistoryItem
+  createUser(
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String
+    location: String!
+  ): User
+  createCoverLetter(
+    userId: ID!
+    title: String
+    subtitle: String
+    text: String!
+  ): CoverLetter
+  createEducation(
+    userId: ID!
+    schoolName: String!
+    graduated: Boolean!
+    degree: String
+    subject: String!
+    lastYearAttended: String!
+  ): Education
+  createEmploymentHistoryItem(
+    userId: ID!
+    employerName: String!
+    startDate: String!
+    endDate: String
+    label: String!
+    description: String
+  ): EmploymentHistoryItem
   createResume(userId: ID!, name: String!): Resume
-  updateUser(id: ID!, firstName: String!, lastName: String!, email: String!, phone: String, location: String!): User
-  updateEducation(id: ID!, schoolName: String!, graduated: Boolean!, degree: String, Subject: String!, lastYearAttended: String!): Education
-  updateCoverLetter(id: ID!, title: String, subtitle: String text: String!): CoverLetter
-  updateEmploymentHistoryItem(id: ID!, employerName: String!, startDate: String!, endDate: String, label: String!, description: String): EmploymentHistoryItem
+  updateUser(
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String
+    location: String!
+  ): User
+  updateEducation(
+    id: ID!
+    schoolName: String!
+    graduated: Boolean!
+    degree: String
+    subject: String!
+    lastYearAttended: String!
+  ): Education
+  updateCoverLetter(
+    id: ID!
+    title: String
+    subtitle: String
+    text: String!
+  ): CoverLetter
+  updateEmploymentHistoryItem(
+    id: ID!
+    employerName: String!
+    startDate: String!
+    endDate: String
+    label: String!
+    description: String
+  ): EmploymentHistoryItem
   updateResumeName(id: ID!, name: String!): Resume
   deleteUser(id: ID!): User
   deleteEducation(id: ID!): Education
@@ -38,10 +89,16 @@ type Mutation {
   deleteResume(id: ID!): Resume
   addCoverLetterToResume(resumeId: ID!, coverLetterId: ID!): Resume
   addEducationToResume(resumeId: ID!, educationId: ID!): Resume
-  addEmploymentHistoryItemToResume(resumeId: ID!, employmentHistoryItemId: ID!): Resume
-  removeCoverLetterFromResume(coverLetterId: ID!, resumeId: ID!): Resume
+  addEmploymentHistoryItemToResume(
+    resumeId: ID!
+    employmentHistoryItemId: ID!
+  ): Resume
+  removeCoverLetterFromResume(resumeId: ID!): Resume
   removeEducationFromResume(educationId: ID!, resumeId: ID!): Resume
-  removeEmploymentHistoryItemFromResume(employmentHistoryItemId: ID!, resumeId: ID!): Resume
+  removeEmploymentHistoryItemFromResume(
+    employmentHistoryItemId: ID!
+    resumeId: ID!
+  ): Resume
 }
 
 type User {
@@ -96,4 +153,5 @@ type Resume {
   education: [Education!]
   employmentHistory: [EmploymentHistoryItem!]
 }
+
 ```

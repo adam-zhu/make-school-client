@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+import { shadows, formStyles } from "../styles";
 
 const Education = ({
   education,
@@ -15,18 +18,25 @@ const Education = ({
   return (
     <div>
       <h2>Create New Education</h2>
+      <br />
       <Create saveHandlerFactory={createHandler} />
+      <br />
       <hr />
+      <br />
       <h2>Education</h2>
+      <br />
       {education.length > 0 ? (
         education.map(ed => (
-          <EducationItems
-            key={ed.id}
-            {...ed}
-            changeHandlerFactory={changeHandlerFactory}
-            saveHandlerFactory={saveHandlerFactory}
-            deleteHandlerFactory={deleteHandlerFactory}
-          />
+          <>
+            <EducationItems
+              key={ed.id}
+              {...ed}
+              changeHandlerFactory={changeHandlerFactory}
+              saveHandlerFactory={saveHandlerFactory}
+              deleteHandlerFactory={deleteHandlerFactory}
+            />
+            <br />
+          </>
         ))
       ) : (
         <p>none</p>
@@ -75,7 +85,13 @@ const Create = ({ saveHandlerFactory }) => {
   };
 
   return (
-    <form onSubmit={submitHandler} disabled={busy}>
+    <form
+      onSubmit={submitHandler}
+      disabled={busy}
+      css={css`
+        ${formStyles}
+      `}
+    >
       <div>
         <label>School Name</label>
         <input
@@ -146,10 +162,24 @@ const EducationItems = ({
   deleteHandlerFactory
 }) => {
   const fieldChangeHandler = changeHandlerFactory(id);
+  const articleStyles = `
+    padding: 1rem;
+    box-shadow: ${shadows.dp1};
+  `;
 
   return (
-    <article>
-      <form onSubmit={saveHandlerFactory(id)} disabled={busy}>
+    <article
+      css={css`
+        ${articleStyles}
+      `}
+    >
+      <form
+        onSubmit={saveHandlerFactory(id)}
+        disabled={busy}
+        css={css`
+          ${formStyles}
+        `}
+      >
         <div>
           <label>School Name</label>
           <input
@@ -203,9 +233,15 @@ const EducationItems = ({
         <button type="submit" disabled={busy}>
           Save
         </button>
-      </form>
-      <form onSubmit={deleteHandlerFactory(id)} disabled={busy}>
-        <button type="submit" disabled={busy}>
+        <button
+          type="submit"
+          disabled={busy}
+          onClick={deleteHandlerFactory(id)}
+          disabled={busy}
+          css={css`
+            float: right;
+          `}
+        >
           Delete
         </button>
       </form>
