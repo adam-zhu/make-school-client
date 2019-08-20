@@ -538,12 +538,14 @@ function App() {
             )
           }
         }));
+        setItemBusy("coverLetters")(coverLetterId)(false);
       };
       const failure = error => {
-        setItemBusy("resumes")(resumeId)(false);
+        setItemBusy("coverLetters")(coverLetterId)(false);
         handleError(error);
       };
 
+      setItemBusy("coverLetters")(coverLetterId)(true);
       addCoverLetterToResume(resumeId)(coverLetterId)(success, failure);
     },
     addEducationToResumeFactory: resumeId => educationId => e => {
@@ -557,12 +559,14 @@ function App() {
             )
           }
         }));
+        setItemBusy("education")(educationId)(false);
       };
       const failure = error => {
-        setItemBusy("resumes")(resumeId)(false);
+        setItemBusy("education")(educationId)(false);
         handleError(error);
       };
 
+      setItemBusy("education")(educationId)(true);
       addEducationToResume(resumeId)(educationId)(success, failure);
     },
     addEmploymentHistoryToResumeFactory: resumeId => employmentHistoryItemId => e => {
@@ -576,12 +580,14 @@ function App() {
             )
           }
         }));
+        setItemBusy("employmentHistory")(employmentHistoryItemId)(false);
       };
       const failure = error => {
-        setItemBusy("resumes")(resumeId)(false);
+        setItemBusy("employmentHistory")(employmentHistoryItemId)(false);
         handleError(error);
       };
 
+      setItemBusy("employmentHistory")(employmentHistoryItemId)(true);
       addEmploymentHistoryItemToResume(resumeId)(employmentHistoryItemId)(
         success,
         failure
@@ -666,20 +672,46 @@ function App() {
     h1,h2,h3,h4,h5,h6 {
       font-weight: 500;
     }
+
+    hr {
+      border: 2px solid gainsboro;
+    }
   `;
   const navStyles = `
-    box-shadow: ${shadows.dp2};
+    width: 13rem;
+    flex: 0 0 auto;
+    position: relative;
+    overflow: hidden;
+
+    .inner {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      display: inline-block;
+      box-shadow: ${shadows.dp2};
+    }
+
+    @media print {
+      display: none;
+    }
   `;
   const mobileNavStyles = `
     display: none;
   `;
   const mainStyles = `
     padding: 2rem 4rem;
+    position: relative;
+
+    @media print {
+      padding: 0;
+    }
   `;
   const errorAlerterStyles = `
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 10;
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.666);
@@ -706,7 +738,9 @@ function App() {
           ${navStyles}
         `}
       >
-        <Nav routes={STATE.routes} navigateHandler={handlers.navigate} />
+        <div className="inner">
+          <Nav routes={STATE.routes} navigateHandler={handlers.navigate} />
+        </div>
       </aside>
       <header
         css={css`

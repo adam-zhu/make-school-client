@@ -133,8 +133,7 @@ const Create = ({ saveHandlerFactory }) => {
       </div>
       <div>
         <label>Description</label>
-        <input
-          type="text"
+        <textarea
           name="description"
           value={description}
           onChange={fieldChangeHandler}
@@ -221,8 +220,7 @@ const EmploymentHistoryItem = ({
         </div>
         <div>
           <label>Description</label>
-          <input
-            type="text"
+          <textarea
             name="description"
             value={description}
             onChange={fieldChangeHandler}

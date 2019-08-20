@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
-import { shadows, formStyles } from "../styles";
+import { shadows, buttonStyles, formStyles } from "../styles";
 import CoverLetter from "../Components/CoverLetter";
 import Education from "../Components/Education";
 import EmploymentHistory from "../Components/EmploymentHistory";
@@ -21,13 +21,32 @@ const Resumes = ({
   removeEducationFactory,
   removeEmploymentHistoryFactory
 }) => {
-  if (busy) {
-    return <progress />;
-  }
-
+  const [viewingResume, setViewingResume] = useState(null);
   const { resumes } = user;
+  const editingResume = resumes.find(r => r.editing);
 
-  return (
+  return viewingResume ? (
+    <ViewResume
+      resume={viewingResume}
+      doneHandler={e => setViewingResume(null)}
+    />
+  ) : editingResume ? (
+    <ResumeEdit
+      resume={editingResume}
+      user={user}
+      editModeToggle={editModeToggleFactory(editingResume.id)}
+      addCoverLetterFactory={addCoverLetterToResumeFactory(editingResume.id)}
+      addEducationFactory={addEducationToResumeFactory(editingResume.id)}
+      addEmploymentHistoryFactory={addEmploymentHistoryToResumeFactory(
+        editingResume.id
+      )}
+      removeCoverLetterHandler={removeCoverLetterHandler}
+      removeEducationHandler={removeEducationFactory(editingResume.id)}
+      removeEmploymentHistoryHandler={removeEmploymentHistoryFactory(
+        editingResume.id
+      )}
+    />
+  ) : (
     <div>
       <h2>Create New Resume</h2>
       <br />
@@ -56,6 +75,7 @@ const Resumes = ({
               removeCoverLetterHandler={removeCoverLetterHandler}
               removeEducationFactory={removeEducationFactory}
               removeEmploymentHistoryFactory={removeEmploymentHistoryFactory}
+              viewHandler={e => setViewingResume(r)}
             />
             <br />
           </>
@@ -129,26 +149,12 @@ const Resume = ({
   addEmploymentHistoryToResumeFactory,
   removeCoverLetterHandler,
   removeEducationFactory,
-  removeEmploymentHistoryFactory
+  removeEmploymentHistoryFactory,
+  viewHandler
 }) => {
-  // const { id, name, coverLetter, education, employmentHistory, busy } = resume;
   const nameChangeHandler = nameChangeHandlerFactory(resume.id);
 
-  return resume.editing ? (
-    <ResumeEdit
-      resume={resume}
-      user={user}
-      editModeToggle={editModeToggleFactory(resume.id)}
-      addCoverLetterFactory={addCoverLetterToResumeFactory(resume.id)}
-      addEducationFactory={addEducationToResumeFactory(resume.id)}
-      addEmploymentHistoryFactory={addEmploymentHistoryToResumeFactory(
-        resume.id
-      )}
-      removeCoverLetterHandler={removeCoverLetterHandler}
-      removeEducationHandler={removeEducationFactory(resume.id)}
-      removeEmploymentHistoryHandler={removeEmploymentHistoryFactory(resume.id)}
-    />
-  ) : (
+  return (
     <article>
       <form
         onSubmit={saveHandlerFactory(resume.id)}
@@ -169,6 +175,7 @@ const Resume = ({
         <button type="submit" disabled={resume.busy}>
           Save
         </button>
+        &nbsp;&nbsp;
         <button
           type="button"
           onClick={editModeToggleFactory(resume.id)}
@@ -176,6 +183,11 @@ const Resume = ({
         >
           Edit
         </button>
+        &nbsp;&nbsp;
+        <button type="button" onClick={viewHandler} disabled={resume.busy}>
+          View
+        </button>
+        &nbsp;&nbsp;
         <button
           type="button"
           onClick={deleteHandlerFactory(resume.id)}
@@ -191,6 +203,7 @@ const Resume = ({
 const ResumeEdit = ({
   resume,
   user,
+  editModeToggle,
   addCoverLetterFactory,
   addEducationFactory,
   addEmploymentHistoryFactory,
@@ -202,77 +215,286 @@ const ResumeEdit = ({
   const styles = css`
     display: flex;
     justify-content: space-between;
+    position: relative;
+
+    .choices,
+    .content {
+      width: 50%;
+      padding: 1rem;
+    }
+
+    button.done {
+      ${buttonStyles};
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
   `;
 
   return (
-    <div css={styles}>
-      <div>
-        <CoverLetterChoices
-          coverLetters={coverLetters}
-          addCoverLetterFactory={addCoverLetterFactory}
-          busy={resume.busy}
-        />
-        <EducationChoices
-          education={education}
-          addEducationFactory={addEducationFactory}
-          busy={resume.busy}
-        />
-        <EmploymentHistoryChoices
-          employmentHistory={employmentHistory}
-          addEmploymentHistoryFactory={addEmploymentHistoryFactory}
-          busy={resume.busy}
-        />
+    <div>
+      <div css={styles}>
+        <button className="done" type="button" onClick={editModeToggle}>
+          DONE
+        </button>
+        <div className="choices">
+          <CoverLetterChoices
+            coverLetters={coverLetters}
+            addCoverLetterFactory={addCoverLetterFactory}
+            selected={resume.coverLetter}
+            busy={resume.busy}
+          />
+          <br />
+          <hr />
+          <br />
+          <EducationChoices
+            education={education}
+            addEducationFactory={addEducationFactory}
+            selected={resume.education}
+            busy={resume.busy}
+          />
+          <br />
+          <hr />
+          <br />
+          <EmploymentHistoryChoices
+            employmentHistory={employmentHistory}
+            addEmploymentHistoryFactory={addEmploymentHistoryFactory}
+            selected={resume.employmentHistory}
+            busy={resume.busy}
+          />
+        </div>
+        <div className="content">
+          <ResumeContent
+            resume={resume}
+            removeCoverLetterHandler={removeCoverLetterHandler}
+            removeEducationHandler={removeEducationHandler}
+            removeEmploymentHistoryHandler={removeEmploymentHistoryHandler}
+          />
+        </div>
       </div>
-      <ResumeContent
-        resume={resume}
-        removeCoverLetterHandler={removeCoverLetterHandler}
-        removeEducationHandler={removeEducationHandler}
-        removeEmploymentHistoryHandler={removeEmploymentHistoryHandler}
-      />
     </div>
   );
 };
 
-const CoverLetterChoices = ({ coverLetters, addCoverLetterFactory, busy }) => {
-  return busy ? (
-    <progress />
-  ) : (
-    coverLetters.map(c => (
-      <div onClick={busy ? null : addCoverLetterFactory(c.id)} key={c.id}>
-        <CoverLetter {...c} />
+const CoverLetterChoices = ({
+  coverLetters,
+  addCoverLetterFactory,
+  selected,
+  busy
+}) => {
+  const containerStyles = `
+    display: flex;
+    justify-content: space-between;
+  `;
+  const tileStyles = `
+    padding: 0.5rem;
+    margin: 0.25rem;
+    box-shadow: ${shadows.dp1};
+    cursor: pointer;
+    font-size: 0.666rem;
+    border: none;
+    outline: none;
+    background: none;
+    text-align: left;
+    line-height: 1;
+
+    &:hover {
+      box-shadow: ${shadows.dp4};
+    }
+
+    &:active {
+      box-shadow: none;
+      opacity: 0.5;
+    }
+
+    &:disabled {
+      box-shadow: none;
+      background: gainsboro;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  `;
+
+  return (
+    <>
+      <h2>Cover Letter Options</h2>
+      <br />
+      <div
+        css={css`
+          ${containerStyles}
+        `}
+      >
+        {coverLetters.length > 0 ? (
+          coverLetters.map(c => {
+            const isDisabled =
+              busy || c.busy || (selected && selected.id === c.id);
+
+            return (
+              <button
+                onClick={isDisabled ? null : addCoverLetterFactory(c.id)}
+                key={c.id}
+                css={css`
+                  ${tileStyles}
+                `}
+                disabled={isDisabled}
+              >
+                <CoverLetter {...c} />
+              </button>
+            );
+          })
+        ) : (
+          <p>none</p>
+        )}
       </div>
-    ))
+    </>
   );
 };
 
-const EducationChoices = ({ education, addEducationFactory, busy }) => {
-  return busy ? (
-    <progress />
-  ) : (
-    education.map(edu => (
-      <div onClick={busy ? null : addEducationFactory(edu.id)} key={edu.id}>
-        <Education {...edu} />
+const EducationChoices = ({
+  education,
+  selected,
+  addEducationFactory,
+  busy
+}) => {
+  const containerStyles = `
+    display: flex;
+    justify-content: space-between;
+  `;
+  const tileStyles = `
+    padding: 0.5rem;
+    margin: 0.25rem;
+    box-shadow: ${shadows.dp1};
+    cursor: pointer;
+    font-size: 0.666rem;
+    border: none;
+    outline: none;
+    background: none;
+    text-align: left;
+    line-height: 1;
+
+    &:hover {
+      box-shadow: ${shadows.dp4};
+    }
+
+    &:active {
+      box-shadow: none;
+      opacity: 0.5;
+    }
+
+    &:disabled {
+      box-shadow: none;
+      background: gainsboro;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  `;
+
+  return (
+    <>
+      <h2>Education Options</h2>
+      <br />
+      <div
+        css={css`
+          ${containerStyles}
+        `}
+      >
+        {education.length > 0 ? (
+          education.map(edu => {
+            const isDisabled =
+              busy || edu.busy || selected.find(ed => ed.id === edu.id);
+
+            return (
+              <button
+                onClick={isDisabled ? null : addEducationFactory(edu.id)}
+                key={edu.id}
+                css={css`
+                  ${tileStyles}
+                `}
+                disabled={isDisabled}
+              >
+                <Education {...edu} />
+              </button>
+            );
+          })
+        ) : (
+          <p>none</p>
+        )}
       </div>
-    ))
+    </>
   );
 };
 
 const EmploymentHistoryChoices = ({
   employmentHistory,
+  selected,
   addEmploymentHistoryFactory,
   busy
 }) => {
-  return busy ? (
-    <progress />
-  ) : (
-    employmentHistory.map(emp => (
+  const containerStyles = `
+  `;
+  const tileStyles = `
+    padding: 0.5rem;
+    margin: 0.25rem;
+    box-shadow: ${shadows.dp1};
+    cursor: pointer;
+    font-size: 0.666rem;
+    border: none;
+    outline: none;
+    background: none;
+    text-align: left;
+    line-height: 1;
+
+    &:hover {
+      box-shadow: ${shadows.dp4};
+    }
+
+    &:active {
+      box-shadow: none;
+      opacity: 0.5;
+    }
+
+    &:disabled {
+      box-shadow: none;
+      background: gainsboro;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  `;
+
+  return (
+    <>
+      <h2>Employment History Options</h2>
+      <br />
       <div
-        onClick={busy ? null : addEmploymentHistoryFactory(emp.id)}
-        key={emp.id}
+        css={css`
+          ${containerStyles}
+        `}
       >
-        <EmploymentHistory {...emp} />
+        {employmentHistory.length > 0 ? (
+          employmentHistory.map(emp => {
+            const isDisabled =
+              busy || emp.busy || selected.find(em => em.id === emp.id);
+
+            return (
+              <button
+                onClick={
+                  isDisabled ? null : addEmploymentHistoryFactory(emp.id)
+                }
+                key={emp.id}
+                css={css`
+                  ${tileStyles}
+                `}
+                disabled={isDisabled}
+              >
+                <EmploymentHistory {...emp} />
+              </button>
+            );
+          })
+        ) : (
+          <p>none</p>
+        )}
       </div>
-    ))
+    </>
   );
 };
 
@@ -283,42 +505,243 @@ const ResumeContent = ({
   removeEmploymentHistoryHandler
 }) => {
   const { id, user, name, coverLetter, education, employmentHistory } = resume;
+  const containerStyles = `
+    font-size: 0.75rem;
+    padding: 1em;
+    box-shadow: ${shadows.dp1};
 
-  return resume.busy ? (
-    <progress />
-  ) : (
-    <div>
-      Content{" "}
-      {coverLetter ? (
-        <div onClick={resume.busy ? null : removeCoverLetterHandler(resume.id)}>
-          <CoverLetter {...coverLetter} />
+    h2.section-title {
+      padding: 0.25em 0.5em;
+      color: white;
+      margin-bottom: 0.5em;
+      font-size: 1.2em;
+
+      &.education {
+        background: gold;
+      }
+
+      &.employment-history {
+        background: dodgerblue;
+      }
+
+      &.contact {
+        background: teal;
+      }
+    }
+  `;
+  const itemStyles = `
+    position: relative;
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,.666);
+      opacity: 0;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      .text {
+        color: white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+  `;
+
+  return (
+    <>
+      <h1 className="resume-name" style={{ fontSize: `1.4em` }}>
+        {resume.name}
+      </h1>
+      <br />
+      {resume.busy ? (
+        <progress />
+      ) : (
+        <div
+          css={css`
+            ${containerStyles}
+          `}
+        >
+          <br />
+          {coverLetter ? (
+            <div
+              onClick={resume.busy ? null : removeCoverLetterHandler(resume.id)}
+              css={css`
+                ${itemStyles}
+              `}
+            >
+              <div className="overlay">
+                <span className="text">DELETE</span>
+              </div>
+              <CoverLetter {...coverLetter} />
+            </div>
+          ) : (
+            <p className="empty-state">No cover letter</p>
+          )}
+          <br />
+          {education.length > 0 ? (
+            <div>
+              <h2 className="section-title education">EDUCATION</h2>
+              {education.map(edu => (
+                <div
+                  onClick={resume.busy ? null : removeEducationHandler(edu.id)}
+                  css={css`
+                    ${itemStyles}
+                  `}
+                >
+                  <div className="overlay">
+                    <span className="text">DELETE</span>
+                  </div>
+                  <Education {...edu} />
+                  <br />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-state">No education</p>
+          )}
+          <br />
+          {employmentHistory.length > 0 ? (
+            <div>
+              <h2 className="section-title employment-history">
+                EMPLOYMENT HISTORY
+              </h2>
+              {employmentHistory.map(emp => (
+                <div
+                  onClick={
+                    resume.busy ? null : removeEmploymentHistoryHandler(emp.id)
+                  }
+                  css={css`
+                    ${itemStyles}
+                  `}
+                >
+                  <div className="overlay">
+                    <span className="text">DELETE</span>
+                  </div>
+                  <EmploymentHistory {...emp} />
+                  <br />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-state">No employment history</p>
+          )}
+          <br />
+          <h2 className="section-title contact">CONTACT</h2>
+          <p>{user.email}</p>
+          {user.phone && <p>{user.phone}</p>}
+          <p>{user.location}</p>
         </div>
-      ) : (
-        <p>No cover letter</p>
       )}
-      {education.length > 0 ? (
-        education.map(edu => (
-          <div onClick={resume.busy ? null : removeEducationHandler(edu.id)}>
-            <Education {...edu} />
+    </>
+  );
+};
+
+const ViewResume = ({ resume, doneHandler }) => {
+  const { id, user, name, coverLetter, education, employmentHistory } = resume;
+  const containerStyles = `
+    font-size: 1rem;
+    padding: 1em;
+    box-shadow: ${shadows.dp1};
+
+    h2.section-title {
+      padding: 0.25em 0.5em;
+      color: white;
+      margin-bottom: 0.5em;
+      font-size: 1.2em;
+
+      &.education {
+        background: gold;
+      }
+
+      &.employment-history {
+        background: dodgerblue;
+      }
+
+      &.contact {
+        background: teal;
+      }
+    }
+
+    @media print {
+      box-shadow: none;
+      padding: 0;
+    }
+  `;
+
+  return (
+    <>
+      <button
+        className="done"
+        type="button"
+        onClick={doneHandler}
+        css={css`
+          ${buttonStyles}
+          @media print {
+            display: none;
+          }
+        `}
+      >
+        DONE
+      </button>
+      <br />
+      <br />
+      <div
+        css={css`
+          ${containerStyles}
+        `}
+      >
+        <br />
+        {coverLetter ? (
+          <CoverLetter {...coverLetter} />
+        ) : (
+          <p className="empty-state">No cover letter</p>
+        )}
+        <br />
+        {education.length > 0 ? (
+          <div>
+            <h2 className="section-title education">EDUCATION</h2>
+            {education.map(edu => (
+              <>
+                <Education {...edu} />
+                <br />
+              </>
+            ))}
           </div>
-        ))
-      ) : (
-        <p>No education</p>
-      )}
-      {employmentHistory.length > 0 ? (
-        employmentHistory.map(emp => (
-          <div
-            onClick={
-              resume.busy ? null : removeEmploymentHistoryHandler(emp.id)
-            }
-          >
-            <EmploymentHistory {...emp} />
+        ) : (
+          <p className="empty-state">No education</p>
+        )}
+        <br />
+        {employmentHistory.length > 0 ? (
+          <div>
+            <h2 className="section-title employment-history">
+              EMPLOYMENT HISTORY
+            </h2>
+            {employmentHistory.map(emp => (
+              <>
+                <EmploymentHistory {...emp} />
+                <br />
+              </>
+            ))}
           </div>
-        ))
-      ) : (
-        <p>No employment history</p>
-      )}
-    </div>
+        ) : (
+          <p className="empty-state">No employment history</p>
+        )}
+        <br />
+        <h2 className="section-title contact">CONTACT</h2>
+        <p>{user.email}</p>
+        {user.phone && <p>{user.phone}</p>}
+        <p>{user.location}</p>
+      </div>
+    </>
   );
 };
 

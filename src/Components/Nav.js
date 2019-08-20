@@ -10,7 +10,7 @@ const Nav = ({ routes, navigateHandler }) => {
       color: black;
       text-decoration: ${current ? "underline" : "none"};
       :hover {
-        background: ghostwhite;
+        opacity: 0.5;
       }
     `;
     return (
