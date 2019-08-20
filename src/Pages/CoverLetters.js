@@ -25,19 +25,27 @@ const CoverLetters = ({
       <br />
       <h2>Cover Letters</h2>
       <br />
-      <div>
+      <div
+        css={css`
+          display: flex;
+          flex-wrap: wrap;
+        `}
+      >
         {coverLetters.length > 0 ? (
           coverLetters.map(c => (
-            <>
+            <div
+              key={c.id}
+              css={css`
+                margin: 0 1rem 1rem 0;
+              `}
+            >
               <CoverLetter
-                key={c.id}
                 {...c}
                 changeHandlerFactory={changeHandlerFactory}
                 saveHandlerFactory={saveHandlerFactory}
                 deleteHandlerFactory={deleteHandlerFactory}
               />
-              <br />
-            </>
+            </div>
           ))
         ) : (
           <p>none</p>
@@ -94,6 +102,7 @@ const Create = ({ saveHandlerFactory }) => {
       disabled={busy}
       css={css`
         ${formStyles}
+        width: 20rem;
       `}
     >
       <div>
@@ -146,7 +155,9 @@ const CoverLetter = ({
 }) => {
   const articleStyles = `
     padding: 1rem;
+    display: inline-block;
     box-shadow: ${shadows.dp1};
+    width: 16rem;
   `;
 
   return (
@@ -160,6 +171,7 @@ const CoverLetter = ({
         disabled={busy}
         css={css`
           ${formStyles}
+          width: 20rem;
         `}
       >
         <div>

@@ -25,6 +25,10 @@ export const inputStyles = `
     border-bottom: 1px solid gray;
   }
 
+  &[type="checkbox"] {
+    width: auto;
+  }
+
   &[disabled] {
     background: whitesmoke;
     color: gray;
@@ -55,7 +59,7 @@ export const textareaStyles = `
 `;
 
 export const buttonStyles = `
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.75rem;
   border: none;
   box-shadow: ${shadows.dp1};
   border-radius: 0.25rem;
@@ -91,6 +95,7 @@ export const formFieldStyles = `
 
 export const formStyles = `
   width: 100%;
+  max-width: 100%;
   div { ${formFieldStyles} }
   button { ${buttonStyles} }
 `;

@@ -25,22 +25,32 @@ const Education = ({
       <br />
       <h2>Education</h2>
       <br />
-      {education.length > 0 ? (
-        education.map(ed => (
-          <>
-            <EducationItems
+      <div
+        css={css`
+          display: flex;
+          flex-wrap: wrap;
+        `}
+      >
+        {education.length > 0 ? (
+          education.map(ed => (
+            <div
               key={ed.id}
-              {...ed}
-              changeHandlerFactory={changeHandlerFactory}
-              saveHandlerFactory={saveHandlerFactory}
-              deleteHandlerFactory={deleteHandlerFactory}
-            />
-            <br />
-          </>
-        ))
-      ) : (
-        <p>none</p>
-      )}
+              css={css`
+                margin: 0 1rem 1rem 0;
+              `}
+            >
+              <EducationItems
+                {...ed}
+                changeHandlerFactory={changeHandlerFactory}
+                saveHandlerFactory={saveHandlerFactory}
+                deleteHandlerFactory={deleteHandlerFactory}
+              />
+            </div>
+          ))
+        ) : (
+          <p>none</p>
+        )}
+      </div>
     </div>
   );
 };
@@ -90,6 +100,7 @@ const Create = ({ saveHandlerFactory }) => {
       disabled={busy}
       css={css`
         ${formStyles}
+        max-width: 14rem;
       `}
     >
       <div>

@@ -25,22 +25,33 @@ const EmploymentHistory = ({
       <br />
       <h2>Employment History</h2>
       <br />
-      {employmentHistory.length > 0 ? (
-        employmentHistory.map(emp => (
-          <>
-            <EmploymentHistoryItem
+      <div
+        css={css`
+          display: flex;
+          flex-wrap: wrap;
+        `}
+      >
+        {employmentHistory.length > 0 ? (
+          employmentHistory.map(emp => (
+            <div
               key={emp.id}
-              {...emp}
-              changeHandlerFactory={changeHandlerFactory}
-              saveHandlerFactory={saveHandlerFactory}
-              deleteHandlerFactory={deleteHandlerFactory}
-            />
-            <br />
-          </>
-        ))
-      ) : (
-        <p>none</p>
-      )}
+              css={css`
+                margin: 0 1rem 1rem 0;
+              `}
+            >
+              <EmploymentHistoryItem
+                {...emp}
+                changeHandlerFactory={changeHandlerFactory}
+                saveHandlerFactory={saveHandlerFactory}
+                deleteHandlerFactory={deleteHandlerFactory}
+              />
+              <br />
+            </div>
+          ))
+        ) : (
+          <p>none</p>
+        )}
+      </div>
     </div>
   );
 };
@@ -89,6 +100,7 @@ const Create = ({ saveHandlerFactory }) => {
       disabled={busy}
       css={css`
         ${formStyles}
+        max-width: 16rem;
       `}
     >
       <div>

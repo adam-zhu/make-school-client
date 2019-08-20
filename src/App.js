@@ -676,6 +676,10 @@ function App() {
     hr {
       border: 2px solid gainsboro;
     }
+
+    @media screen and (max-width: 768px) {
+      display: block;
+    }
   `;
   const navStyles = `
     width: 13rem;
@@ -692,19 +696,30 @@ function App() {
       box-shadow: ${shadows.dp2};
     }
 
+    @media screen and (max-width: 768px),
     @media print {
       display: none;
     }
   `;
   const mobileNavStyles = `
     display: none;
+
+    @media screen and (max-width: 768px) {
+      display: block;
+    }
   `;
   const mainStyles = `
     padding: 2rem 4rem;
     position: relative;
+    width: 100%;
 
     @media print {
       padding: 0;
+    }
+
+    @media screen and (max-width: 768px) {
+      width: auto;
+      padding: 1rem;
     }
   `;
   const errorAlerterStyles = `

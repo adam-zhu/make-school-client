@@ -56,33 +56,47 @@ const Resumes = ({
       <br />
       <h2>Resumes</h2>
       <br />
-      {resumes.length > 0 ? (
-        resumes.map(r => (
-          <>
-            <Resume
-              key={r.id}
-              resume={r}
-              user={user}
-              nameChangeHandlerFactory={nameChangeHandlerFactory}
-              saveHandlerFactory={saveHandlerFactory}
-              deleteHandlerFactory={deleteHandlerFactory}
-              editModeToggleFactory={editModeToggleFactory}
-              addCoverLetterToResumeFactory={addCoverLetterToResumeFactory}
-              addEducationToResumeFactory={addEducationToResumeFactory}
-              addEmploymentHistoryToResumeFactory={
-                addEmploymentHistoryToResumeFactory
-              }
-              removeCoverLetterHandler={removeCoverLetterHandler}
-              removeEducationFactory={removeEducationFactory}
-              removeEmploymentHistoryFactory={removeEmploymentHistoryFactory}
-              viewHandler={e => setViewingResume(r)}
-            />
-            <br />
-          </>
-        ))
-      ) : (
-        <p>none</p>
-      )}
+      <div
+        css={css`
+          display: flex;
+          flex-wrap: wrap;
+
+          @media screen and (max-width: 768px) {
+            display: block;
+          }
+        `}
+      >
+        {resumes.length > 0 ? (
+          resumes.map(r => (
+            <div
+              css={css`
+                margin: 0 1rem 1rem 0;
+              `}
+            >
+              <Resume
+                key={r.id}
+                resume={r}
+                user={user}
+                nameChangeHandlerFactory={nameChangeHandlerFactory}
+                saveHandlerFactory={saveHandlerFactory}
+                deleteHandlerFactory={deleteHandlerFactory}
+                editModeToggleFactory={editModeToggleFactory}
+                addCoverLetterToResumeFactory={addCoverLetterToResumeFactory}
+                addEducationToResumeFactory={addEducationToResumeFactory}
+                addEmploymentHistoryToResumeFactory={
+                  addEmploymentHistoryToResumeFactory
+                }
+                removeCoverLetterHandler={removeCoverLetterHandler}
+                removeEducationFactory={removeEducationFactory}
+                removeEmploymentHistoryFactory={removeEmploymentHistoryFactory}
+                viewHandler={e => setViewingResume(r)}
+              />
+            </div>
+          ))
+        ) : (
+          <p>none</p>
+        )}
+      </div>
     </div>
   );
 };
@@ -118,6 +132,7 @@ const Create = ({ saveHandlerFactory }) => {
       disabled={state.busy}
       css={css`
         ${formStyles}
+        max-width: 16rem;
       `}
     >
       <div>
@@ -153,9 +168,19 @@ const Resume = ({
   viewHandler
 }) => {
   const nameChangeHandler = nameChangeHandlerFactory(resume.id);
+  const articleStyles = `
+    padding: 1rem;
+    display: inline-block;
+    box-shadow: ${shadows.dp1};
+    width: 16rem;
+  `;
 
   return (
-    <article>
+    <article
+      css={css`
+        ${articleStyles}
+      `}
+    >
       <form
         onSubmit={saveHandlerFactory(resume.id)}
         disabled={resume.busy}
@@ -228,6 +253,21 @@ const ResumeEdit = ({
       position: absolute;
       top: 0;
       right: 0;
+    }
+
+    @media screen and (max-width: 768px) {
+      .choices {
+        width: 33.3%;
+        max-height: calc(100vh - 2rem);
+        overflow: scroll;
+      }
+      .content {
+        width: 66.6%;
+      }
+
+      button.done {
+        top: -2rem;
+      }
     }
   `;
 
